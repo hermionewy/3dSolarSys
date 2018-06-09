@@ -64,7 +64,7 @@ var Shaders = {
             'varying vec3 vNormal;',
             'void main() {',
             'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
-            'gl_FragColor = vec4( 0.074, 0.996, 0.992, 1.0 ) * intensity;',
+            'gl_FragColor = vec4( 0.996, 0.544, 0.092, 1.0 ) * intensity;',
             '}'
         ].join('\n')
     }
@@ -87,7 +87,7 @@ const saturn =createStars(planetData[5].size, planetData[5].img);
 const uranus =createStars(planetData[6].size, planetData[6].img);
 const neptune =createStars(planetData[7].size, planetData[7].img);
 const sun = createStars(planetData[8].size, planetData[8].img);
-createGlow(sun.geometry);
+createGlow();
 
 let eightPlanets = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
 let allText = [];
@@ -220,8 +220,7 @@ function createStars(size, img) {
     return planet;
 }
 
-function createSun() {
-
+function createGlow() {
     const geometry = new THREE.SphereGeometry(sunSize, 50, 50);
     const shader = Shaders['atmosphere'];
     const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
@@ -233,15 +232,14 @@ function createSun() {
         fragmentShader: shader.fragmentShader,
         side: THREE.BackSide,
         blending: THREE.AdditiveBlending,
-        transparent: true
+        // transparent: true
     });
 
     let mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.x = mesh.scale.y = mesh.scale.z = 2.1;
-    mesh.flipSided = true;
+    mesh.scale.set( 1.02, 1.02, 1.02 );
     mesh.matrixAutoUpdate = false;
     mesh.updateMatrix();
-    sceneAtmosphere.add(mesh); // the blueish glow
+    scene.add(mesh); // the blueish glow
 
 }
 // animate();
