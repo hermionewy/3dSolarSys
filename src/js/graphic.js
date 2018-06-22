@@ -15,7 +15,7 @@ const stats = new Stats(), gui = new dat.GUI();
 const planetData =[
     {name: 'Mercury', size: 1.2, orbitRadius: sunSize + (AU * 0.4), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.8, rotateSpeed: 0.05, img:'./assets/model/mercury.jpeg'},
     {name: 'Venus', size: 3, orbitRadius: sunSize + (AU * 0.7), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.7, rotateSpeed: 0.05, img:'./assets/model/venus.jpeg'},
-    {name: 'Earth', size: 3, orbitRadius: sunSize + AU, orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.6, rotateSpeed: 0.05, img:'./assets/model/earth.jpeg'},
+    {name: 'Earth', size: 3, orbitRadius: sunSize + AU, orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.6, rotateSpeed: 0.05, img:'./assets/model/earth2.jpg'},
     {name: 'Mars', size: 1.6, orbitRadius: sunSize + (AU * 1.5), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.48, rotateSpeed: 0.05, img:'./assets/model/mars.jpeg'},
     {name: 'Jupiter', size: 34.99, orbitRadius: sunSize + (AU * 5.2), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.22, rotateSpeed: 0.05, img:'./assets/model/jupiter.jpeg'},
     {name: 'Saturn', size: 29.1, orbitRadius: sunSize + (AU * 9.5), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.18, rotateSpeed: 0.05, img:'./assets/model/saturn.png'},
@@ -25,27 +25,19 @@ const planetData =[
 ];
 var Shaders = {
     'earth' : {
-        uniforms: {
-            'texture': { type: 't', value: 0, texture: null }
-        },
+        uniforms: {},
         vertexShader: [
             'varying vec3 vNormal;',
-            'varying vec2 vUv;',
             'void main() {',
-            'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
             'vNormal = normalize( normalMatrix * normal );',
-            'vUv = uv;',
+            'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
             '}'
         ].join('\n'),
         fragmentShader: [
-            'uniform sampler2D texture;',
             'varying vec3 vNormal;',
-            'varying vec2 vUv;',
             'void main() {',
-            'vec3 diffuse = texture2D( texture, vUv ).xyz;',
-            'float intensity = 1.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) );',
-            'vec3 atmosphere = vec3( 1.0, 1.0, 1.0 ) * pow( intensity, 3.0 );',
-            'gl_FragColor = vec4( diffuse + atmosphere, 1.0 );',
+            'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
+            'gl_FragColor = vec4( 0.074, 0.996, 0.992, 1.0 ) * intensity;',
             '}'
         ].join('\n')
     },
@@ -76,16 +68,18 @@ let jupiterText = new THREE.Mesh();
 let saturnText = new THREE.Mesh();
 let uranusText = new THREE.Mesh();
 let neptuneText = new THREE.Mesh();
-const mercury = createStars(planetData[0].size, planetData[0].img);
-const venus = createStars(planetData[1].size, planetData[1].img);
-const earth =createStars(planetData[2].size, planetData[2].img);
-const mars =createStars(planetData[3].size, planetData[3].img);
-const jupiter =createStars(planetData[4].size, planetData[4].img);
-const saturn =createStars(planetData[5].size, planetData[5].img);
-const uranus =createStars(planetData[6].size, planetData[6].img);
-const neptune =createStars(planetData[7].size, planetData[7].img);
-const sun = createStars(planetData[8].size, planetData[8].img);
-createGlow(sun.geometry);
+const mercury = createStars(planetData[0].size, planetData[0].img, 10);
+const venus = createStars(planetData[1].size, planetData[1].img, 30);
+const earth =createStars(planetData[2].size, planetData[2].img, 40);
+const mars =createStars(planetData[3].size, planetData[3].img, 10);
+const jupiter =createStars(planetData[4].size, planetData[4].img, 10);
+const saturn =createStars(planetData[5].size, planetData[5].img, 10);
+const uranus =createStars(planetData[6].size, planetData[6].img, 10);
+const neptune =createStars(planetData[7].size, planetData[7].img, 10);
+const sun = createStars(planetData[8].size, planetData[8].img, 50);
+//sun glow
+createGlow(sun, new THREE.SphereGeometry(sunSize, 50, 50), Shaders['atmosphere'], 1.02);
+createGlow(earth, new THREE.SphereGeometry(3, 40, 40), Shaders['earth'], 1.03); //earthGlow
 
 let allText = [];
 
@@ -184,20 +178,18 @@ function resize() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-function createStars(size, img) {
+function createStars(size, img, segment) {
     let textureLoader = new THREE.TextureLoader();
     const material = new THREE.MeshLambertMaterial({
         map: textureLoader.load(img),
         flatShading: THREE.SmoothShading
     });
-    const planet = new THREE.Mesh(new THREE.SphereGeometry(size, 25, 25), material);
+    const planet = new THREE.Mesh(new THREE.SphereGeometry(size, segment, segment), material);
     scene.add(planet);
     return planet;
 }
 
-function createGlow() {
-    const geometry = new THREE.SphereGeometry(sunSize, 50, 50);
-    const shader = Shaders['atmosphere'];
+function createGlow(planet, geometry, shader, scale) {
     const uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
     const material = new THREE.ShaderMaterial({
@@ -209,13 +201,11 @@ function createGlow() {
         blending: THREE.AdditiveBlending,
         // transparent: true
     });
-
     let mesh = new THREE.Mesh(geometry, material);
-    mesh.scale.set( 1.02, 1.02, 1.02 );
+    mesh.scale.set( scale, scale, scale );
     mesh.matrixAutoUpdate = false;
     mesh.updateMatrix();
-    scene.add(mesh); // the blueish glow
-
+    planet.add(mesh); // the glow
 }
 // animate();
 function animate() {
