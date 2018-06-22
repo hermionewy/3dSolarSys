@@ -2,7 +2,7 @@
 const width = window.innerWidth,
     height = window.innerHeight;
 let scene = new THREE.Scene(), sceneAtmosphere= new THREE.Scene();
-let camera = new THREE.OrthographicCamera( width / - 2, width / 2, height / 2, height / - 2, 1, 15000 );
+let camera = new THREE.OrthographicCamera( width / - 1, width / 1, height / 1, height / - 1, 1, 15000 );
 
 
 var helper = new THREE.CameraHelper( camera );
@@ -11,9 +11,7 @@ let controls;
 const AU = 27, sunSize = 348.15;
 let renderer = new THREE.WebGLRenderer();
 const stats = new Stats(), gui = new dat.GUI();
-//camera animation gig
-let cameraRotation = new THREE.Group(),
-    cameraPosition = new THREE.Group();
+
 const planetData =[
     {name: 'Mercury', size: 1.2, orbitRadius: sunSize + (AU * 0.4), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.8, rotateSpeed: 0.05, img:'./assets/model/mercury.jpeg'},
     {name: 'Venus', size: 3, orbitRadius: sunSize + (AU * 0.7), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.7, rotateSpeed: 0.05, img:'./assets/model/venus.jpeg'},
@@ -87,19 +85,11 @@ const saturn =createStars(planetData[5].size, planetData[5].img);
 const uranus =createStars(planetData[6].size, planetData[6].img);
 const neptune =createStars(planetData[7].size, planetData[7].img);
 const sun = createStars(planetData[8].size, planetData[8].img);
-createGlow();
+createGlow(sun.geometry);
 
-let eightPlanets = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune];
 let allText = [];
-const options = {
-    color: 'black',
-    background: 'white',
-    corners: 'square'
-};
 
 function init() {
-    camera.target = new THREE.Vector3(375, 0, 0);
-    camera.lookAt(camera.target);
 
     scene.add(camera);
     scene.add(new THREE.AmbientLight(0xffffff));
@@ -111,7 +101,7 @@ function init() {
     // controls, camera
     controls = new THREE.OrbitControls( camera, renderer.domElement );
     controls.target.set( 375, 0, 0 );
-    camera.position.set( 375, 18, 2000 );
+    camera.position.set( 375, 0, 2000 );
     // camera.position.set( 200, 18, 2000 );
     controls.update();//must be called after any manual changes to the camera's transform
 
@@ -144,27 +134,12 @@ function init() {
 
 
     //helper
-    gui.add(camera.position, 'x', -2000, 2500);
-    gui.add(camera.position, 'y', -2000, 2500);
-    gui.add(camera.position, 'z', -2000, 2500);
-    gui.add(camera.target, 'x', -50, 200);
-    gui.add(camera.target, 'y', -50, 200);
-    gui.add(camera.target, 'z', -50, 200);
-
-    // gui.add(cameraPosition.position, 'z', -1000, 2500);
-    // gui.add(cameraPosition.position, 'y', -1000, 2500);
-    // gui.add(cameraPosition.position, 'x', -1000, 2500);
-    // gui.add(cameraRotation.rotation, 'y', -Math.PI, Math.PI);
-    // gui.add(cameraRotation.rotation, 'x', -Math.PI, Math.PI);
-    // gui.add(cameraRotation.rotation, 'z', -Math.PI, Math.PI);
-    //
-    // cameraRotation.add(camera);
-    // cameraPosition.add(cameraRotation);
-    // scene.add(cameraPosition);
-    //
-    // cameraRotation.rotation.x = 0;
-    // cameraPosition.position.y = 18;
-    // cameraPosition.position.z = 2000;
+    gui.add(camera.position, 'x', -2000, 10000);
+    gui.add(camera.position, 'y', -2000, 10000);
+    gui.add(camera.position, 'z', -2000, 10000);
+    gui.add(camera.rotation, 'x', -Math.PI/2, Math.PI/2);
+    gui.add(camera.rotation, 'y', -Math.PI/2, Math.PI/2);
+    gui.add(camera.rotation, 'z', -Math.PI/2, Math.PI/2);
 }
 
 
@@ -199,7 +174,7 @@ function planetRotate(planet, text, id, centerPos) {
 }
 
 function onDocumentMouseWheel( event ) {
-    camera.fov += event.deltaY * 0.05;
+    //camera.fov += event.deltaY * 0.05;
     camera.updateProjectionMatrix();
 }
 
@@ -269,25 +244,9 @@ function animate() {
 }
 
 function render() {
-    let r = Date.now() * 0.0005;
-
+    camera.lookAt(earth.position);
     renderer.render(scene, camera);
 }
-
-// function cameraControl(pos0, rot0, pos, rot) {
-//     new TWEEN.Tween({x:pos0.x, y: pos0.y, z:pos0.z, rx: rot0.x, ry:rot0.y, rz:rot0.z})
-//     .to({x:pos.x, y: pos.y, z:pos.z, rx: rot.x, ry:rot.y, rz:rot.z}, 1000)
-//     .easing(TWEEN.Easing.Quadratic.InOut)
-//     .onUpdate(function() {
-//         // cameraPosition.position.x = this.x;
-//         // cameraPosition.position.y = this.y;
-//         // cameraPosition.position.z = this.z;
-//         // cameraRotation.rotation.x = this.rx;
-//         // cameraRotation.rotation.y = this.ry;
-//         // cameraRotation.rotation.z = this.rz;
-//     })
-//     .start();
-// }
 
 function getCamera() {
     return camera

@@ -16,12 +16,14 @@ function updateChart(index, camera) {
     const sel = container.select(`[data-index='${index}']`);
     stepSel.classed('is-active', (d, i) => i === index);
     if(index===0) {
-        cameraTween(camera, {x:375, y:0, z:0}, {x:0, y:0, z:0}, 1)
+        cameraTween(camera, 10000, 10000, 2000, 1)
 	} else if(index===1){
-        cameraTween(camera, {x:375, y:0, z:0}, {x:0, y:-Math.PI/2, z:0}, 20)
+        cameraTween(camera, 375, 18, 2000, 20)
 	} else if(index===2){
-        cameraTween(camera, {x:375, y:0, z:0}, {x:-Math.PI/2, y:0, z:0},100)
-	}
+        cameraTween(camera, 375, 8000, 2000, 150)
+	} else if(index===3){
+        cameraTween(camera, 425, 18, 2000, 200)
+    }
 }
 
 function scrollyTelling(camera) {
@@ -62,19 +64,25 @@ function init() {
 	graphic.animate();
 	let camera = graphic.getCamera();
     scrollyTelling(camera);
-    // scrollyTelling(graphic.cameraControl);
 }
 
-function cameraTween(camera, pos, rot, zoom){
-	console.log(camera.position);
-	console.log(camera.rotation);
+function cameraTween(camera, x,y,z,zoom){
     new TWEEN.Tween(camera)
-        .to({position: pos, rotation: rot, zoom: zoom}, 2000)
+        .to({zoom: zoom}, 2000)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .onUpdate(function() {
+            console.log(this.x, this.y, this.z);
+        	camera.zoom = this.zoom;
+        })
+        .start();
+    var pos = camera.position;
+    new TWEEN.Tween(pos)
+        .to({x:x, y:y, z:z}, 2000)
         // .easing(TWEEN.Easing.Quadratic.InOut)
         .onUpdate(function() {
-        	camera.zoom = this.zoom;
-        	// camera.position= this.position;
-        	// camera.rotation = this.rotation;
+            camera.position.x = this.x;
+            camera.position.y = this.y;
+            camera.position.z = this.z;
         })
         .start();
 }
