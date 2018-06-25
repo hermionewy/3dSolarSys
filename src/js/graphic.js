@@ -1,8 +1,9 @@
 // D3 is included by globally by default
+
 const width = window.innerWidth,
     height = window.innerHeight;
 let scene = new THREE.Scene(), sceneAtmosphere= new THREE.Scene();
-let camera = new THREE.OrthographicCamera( width / - 1, width / 1, height / 1, height / - 1, 1, 15000 );
+let camera = new THREE.OrthographicCamera( width / - 1, width / 1, height / 1, height / - 1, 0.01, 15000 );
 
 
 var helper = new THREE.CameraHelper( camera );
@@ -11,6 +12,7 @@ let controls;
 const AU = 27, sunSize = 348.15;
 let renderer = new THREE.WebGLRenderer();
 const stats = new Stats(), gui = new dat.GUI();
+const category = [ 'Population', 'GDP', 'Literacy', 'Phones'];
 
 const planetData =[
     {name: 'Mercury', size: 1.2, orbitRadius: sunSize + (AU * 0.4), orbitAngle: getRandomArbitrary(360,360), orbitSpeed: 0.8, rotateSpeed: 0.05, img:'./assets/model/mercury.jpeg'},
@@ -68,20 +70,23 @@ let jupiterText = new THREE.Mesh();
 let saturnText = new THREE.Mesh();
 let uranusText = new THREE.Mesh();
 let neptuneText = new THREE.Mesh();
-const mercury = createStars(planetData[0].size, planetData[0].img, 10);
-const venus = createStars(planetData[1].size, planetData[1].img, 30);
-const earth =createStars(planetData[2].size, planetData[2].img, 40);
-const mars =createStars(planetData[3].size, planetData[3].img, 10);
-const jupiter =createStars(planetData[4].size, planetData[4].img, 10);
-const saturn =createStars(planetData[5].size, planetData[5].img, 10);
-const uranus =createStars(planetData[6].size, planetData[6].img, 10);
-const neptune =createStars(planetData[7].size, planetData[7].img, 10);
-const sun = createStars(planetData[8].size, planetData[8].img, 50);
+const mercury = createStars(planetData[0].size, planetData[0].img, 10, "Mercury");
+const venus = createStars(planetData[1].size, planetData[1].img, 25, "Venus");
+const earth =createStars(planetData[2].size, planetData[2].img, 40, "Earth");
+const mars =createStars(planetData[3].size, planetData[3].img, 10, "Mars");
+const jupiter =createStars(planetData[4].size, planetData[4].img, 10, "Jupiter");
+const saturn =createStars(planetData[5].size, planetData[5].img, 10, "Saturn");
+const uranus =createStars(planetData[6].size, planetData[6].img, 10, "Uranus");
+const neptune =createStars(planetData[7].size, planetData[7].img, 10, "Neptune");
+const sun = createStars(planetData[8].size, planetData[8].img, 50, "Sun");
 //sun glow
 createGlow(sun, new THREE.SphereGeometry(sunSize, 50, 50), Shaders['atmosphere'], 1.02);
-createGlow(earth, new THREE.SphereGeometry(3, 40, 40), Shaders['earth'], 1.03); //earthGlow
+// createGlow(earth, new THREE.SphereGeometry(3, 40, 40), Shaders['earth'], 1.03); //earthGlow
 
 let allText = [];
+let earthDataGeo, earthDataMesh;
+let baseGeo = new THREE.Geometry();
+let baseMesh;
 
 function init() {
 
@@ -125,7 +130,10 @@ function init() {
         neptuneText = createText(neptuneText, planetData[7].name, font);
         allText=[mercuryText, venusText, earthText, marsText, saturnText, jupiterText, uranusText, neptuneText];
     });
-
+//cube
+    const earthCubeSize = 10;
+    earthDataGeo = new THREE.BoxGeometry( earthCubeSize, earthCubeSize, earthCubeSize, 2 );
+    earthDataMesh = new THREE.Mesh(earthDataGeo);
 
     //helper
     gui.add(camera.position, 'x', -2000, 10000);
@@ -134,6 +142,9 @@ function init() {
     gui.add(camera.rotation, 'x', -Math.PI/2, Math.PI/2);
     gui.add(camera.rotation, 'y', -Math.PI/2, Math.PI/2);
     gui.add(camera.rotation, 'z', -Math.PI/2, Math.PI/2);
+
+    //
+    addData();
 }
 
 
@@ -149,6 +160,9 @@ function createText(planetText, text, font) {
     scene.add(planetText);
     return planetText
 }
+function getMax(data, attr) {
+    return data.reduce((max, p) => p[attr] > max ? p[attr] : max, data[0][attr]);
+}
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -157,8 +171,8 @@ function planetRotate(planet, text, id, centerPos) {
     planetData[id].orbitAngle -= planetData[id].orbitSpeed;
     //let radians = planetData[id].orbitAngle * Math.PI / 180;
     let radians = 0 * Math.PI / 180;
-    planet.position.x = Math.cos(radians) * planetData[id].orbitRadius;
-    planet.position.z = Math.sin(radians) * planetData[id].orbitRadius;
+    planet.position.x = planetData[id].orbitRadius;
+    planet.position.z = 0
     planet.position.y = 0;
     //planet.rotation.y += planetData[id].rotateSpeed;
     text.position.x = planet.position.x + 15;
@@ -178,15 +192,71 @@ function resize() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
-function createStars(size, img, segment) {
+function createStars(size, img, segment, name) {
     let textureLoader = new THREE.TextureLoader();
     const material = new THREE.MeshLambertMaterial({
         map: textureLoader.load(img),
         flatShading: THREE.SmoothShading
     });
     const planet = new THREE.Mesh(new THREE.SphereGeometry(size, segment, segment), material);
+    planet.name = name;
     scene.add(planet);
     return planet;
+}
+
+function addData(){
+// Promise
+    const requestData = request('GET', './assets/model/allCountries.json');
+// call our promise
+        requestData
+            .then(processData)
+            .then(addToEarth)
+            .then(fulfilled => console.log(fulfilled))
+            .catch(error => console.log(error.message));
+}
+
+function request(method, url) {
+    return new Promise(function (resolve, reject) {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        xhr.onload = resolve;
+        xhr.onerror = reject;
+        xhr.send();
+    });
+}
+function processData(data) {
+    return new Promise(
+        (resolve, reject) => {
+            const newData = JSON.parse(data.target.responseText);
+            console.log('process data');
+            newData.forEach(function (t) {
+                addPoint(+t.Latitude,+t.Longitude, +t['GDP']/37800/2, getColor(+t['GDP']/37800/2), baseGeo);
+            })
+            for(let i=0; i<4; i++){
+                const attr = category[i];
+                const maxInAttr = getMax(newData, attr);
+                console.log(attr, maxInAttr);
+                let subGeo = new THREE.Geometry();
+                newData.forEach(function (t) {
+                    const size = +t[attr]/maxInAttr/2; // linearScale
+                    addPoint(+t.Latitude,+t.Longitude, size, getColor(size), subGeo);
+                })
+                baseGeo.morphTargets.push({'name': 'target-'+i, vertices: subGeo.vertices});
+            }
+            resolve();
+        }
+    );
+}
+function addToEarth() {
+    baseMesh= new THREE.Mesh(baseGeo, new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        vertexColors: THREE.FaceColors,
+        morphTargets: true,
+    }))
+    earth.add(baseMesh);
+    console.log(baseMesh);
+    const message = 'added baseMesh';
+    return Promise.resolve(message);
 }
 
 function createGlow(planet, geometry, shader, scale) {
@@ -233,10 +303,61 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+
+function addPoint(lat, lng, size, color, geo) {
+    var phi = (90 - lat) * Math.PI / 180;
+    var theta = (360 - lng) * Math.PI / 180;
+    const r = 3
+    earthDataMesh.position.x = r * Math.sin(phi) * Math.cos(theta);
+    earthDataMesh.position.y = r * Math.cos(phi);
+    earthDataMesh.position.z = r * Math.sin(phi) * Math.sin(theta);
+    earthDataMesh.scale.z = -size;
+    earthDataMesh.scale.x = 1/500;
+    earthDataMesh.scale.y = 1/500;
+    earthDataMesh.lookAt(new THREE.Vector3( 0, 0, 0 ));
+    earthDataMesh.updateMatrix();
+    for (let i = 0; i < earthDataMesh.geometry.faces.length; i++) {
+        earthDataMesh.geometry.faces[i].color = color;
+    }
+    // earthDataMesh.material = material? material : new THREE.MeshBasicMaterial();
+    earthDataMesh.updateMatrix();
+    //console.log(earthDataMesh);
+    geo.merge(earthDataMesh.geometry, earthDataMesh.matrix);
+}
+
+function getColor(x) {
+    var c = new THREE.Color();
+    c.setHSL( 0.6 -1.2*x, 0.9, 0.8 );
+    return c;
+};
+
 function render() {
     camera.lookAt(earth.position);
     renderer.render(scene, camera);
 }
+
+// this.__defineSetter__('time', function(t) {
+//     // t= 0, 1/3, 2/3
+//     console.log('setTime: ', t);
+//     const morphDict = baseMesh.morphTargetDictionary;
+//     var l = 4; //4
+//     var scaledt = t*l+1;
+//     var index = Math.floor(scaledt);
+//     for (i=0;i<morphDict.length;i++) {
+//         baseMesh.morphTargetInfluences[i] = 0;
+//     }
+//     var lastIndex = index - 1;
+//     var leftover = scaledt - index;
+//     if (lastIndex >= 0) {
+//         baseMesh.morphTargetInfluences[lastIndex] = 1 - leftover;
+//     }
+//     baseMesh.morphTargetInfluences[index] = leftover;
+//     this._time = t;
+// });
+//
+// this.__defineGetter__('time', function() {
+//     return this._time || 0;
+// });
 
 function getCamera() {
     return camera

@@ -23,7 +23,7 @@ function updateChart(index, camera) {
         cameraTween(camera, 375, 8000, 2000, 150)
 	} else if(index===3){
         cameraTween(camera, 425, 18, 2000, 200)
-    }
+    } else if(index===4){}
 }
 
 function scrollyTelling(camera) {
@@ -71,7 +71,6 @@ function cameraTween(camera, x,y,z,zoom){
         .to({zoom: zoom}, 2000)
         .easing(TWEEN.Easing.Quadratic.InOut)
         .onUpdate(function() {
-            console.log(this.x, this.y, this.z);
         	camera.zoom = this.zoom;
         })
         .start();
