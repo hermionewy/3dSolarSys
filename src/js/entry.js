@@ -1,7 +1,7 @@
 // D3 is included by globally by default
 import debounce from 'lodash.debounce';
 import isMobile from './utils/is-mobile';
-import graphic from './graphic';
+import Graphic from './graphic';
 import enterView from 'enter-view';
 import Stickyfill from 'stickyfilljs';
 
@@ -10,6 +10,13 @@ let previousWidth = 0;
 
 const container = d3.select('#main-content');
 const stepSel = container.selectAll('.step');
+const graphic = new Graphic();
+// const setTime = function(graphic, t) {
+//         new TWEEN.Tween(graphic) //Create a new tween that modifies globe
+//             .to({time: t/3},500)
+//             .easing(TWEEN.Easing.Cubic.EaseOut)
+//             .start();
+// };
 
 function updateChart(index, camera) {
     console.log('updateChart' + index)
@@ -23,7 +30,40 @@ function updateChart(index, camera) {
         cameraTween(camera, 375, 8000, 2000, 150)
 	} else if(index===3){
         cameraTween(camera, 425, 18, 2000, 200)
-    } else if(index===4){}
+    } else if(index===4){
+	    setTime(graphic, 0);
+    } else if(index===5){
+        setTime(graphic, 1);
+    }
+}
+
+
+
+function setTime (graphic, t) {
+    let baseMesh = graphic.getBaseMesh();
+
+    new TWEEN.Tween(graphic)
+        .to({time: t/3}, 500)
+        .easing(TWEEN.Easing.Quadratic.InOut)
+        .onUpdate(function() {
+            // console.log(this.time);
+            if(baseMesh!= undefined){
+                const morphDict = baseMesh.morphTargetDictionary;
+                var l = 2; //
+                var scaledt = this.time*l+1;
+                var index = Math.floor(scaledt);
+                for (let i=0;i<l;i++) {
+                    baseMesh.morphTargetInfluences[i] = 0;
+                }
+                var lastIndex = index - 1;
+                var leftover = scaledt - index;
+                if (lastIndex >= 0) {
+                    baseMesh.morphTargetInfluences[lastIndex] = 1 - leftover;
+                }
+                baseMesh.morphTargetInfluences[index] = leftover;
+            }
+        })
+        .start();
 }
 
 function scrollyTelling(camera) {
@@ -74,7 +114,8 @@ function cameraTween(camera, x,y,z,zoom){
         	camera.zoom = this.zoom;
         })
         .start();
-    var pos = camera.position;
+    let pos = camera.position;
+
     new TWEEN.Tween(pos)
         .to({x:x, y:y, z:z}, 2000)
         // .easing(TWEEN.Easing.Quadratic.InOut)
