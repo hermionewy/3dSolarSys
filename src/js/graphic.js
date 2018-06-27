@@ -6,12 +6,12 @@ var Graphic = function(){
     let camera = new THREE.OrthographicCamera( width / - 1, width / 1, height / 1, height / - 1, 0.01, 15000 );
 
 
-    var helper = new THREE.CameraHelper( camera );
-    scene.add( helper );
-    let controls;
+    // var helper = new THREE.CameraHelper( camera );
+    // scene.add( helper );
+    let controls, raycaster, mouse= { x: 0, y: 0 }, intersects, INTERSECTED;
     const AU = 27, sunSize = 348.15;
     let renderer = new THREE.WebGLRenderer();
-    const stats = new Stats(), gui = new dat.GUI();
+    //const stats = new Stats(), gui = new dat.GUI();
     const category = [ 'Population', 'GDP', 'Literacy'];
 
     const planetData =[
@@ -99,12 +99,15 @@ var Graphic = function(){
 
         // controls, camera
         controls = new THREE.OrbitControls( camera, renderer.domElement );
+        controls.enableZoom = false;
         controls.target.set( 375, 0, 0 );
         camera.position.set( 375, 0, 2000 );
         // camera.position.set( 200, 18, 2000 );
         controls.update();//must be called after any manual changes to the camera's transform
 
-        document.getElementById('solar-canvas').appendChild( stats.dom );
+        raycaster = new THREE.Raycaster();
+
+        //document.getElementById('solar-canvas').appendChild( stats.dom );
 
         //create saturn ring
         const saturnSize = 29.1;
@@ -136,14 +139,13 @@ var Graphic = function(){
         earthDataMesh = new THREE.Mesh(earthDataGeo);
 
         //helper
-        gui.add(camera.position, 'x', -2000, 10000);
-        gui.add(camera.position, 'y', -2000, 10000);
-        gui.add(camera.position, 'z', -2000, 10000);
-        gui.add(camera.rotation, 'x', -Math.PI/2, Math.PI/2);
-        gui.add(camera.rotation, 'y', -Math.PI/2, Math.PI/2);
-        gui.add(camera.rotation, 'z', -Math.PI/2, Math.PI/2);
+        // gui.add(camera.position, 'x', -2000, 10000);
+        // gui.add(camera.position, 'y', -2000, 10000);
+        // gui.add(camera.position, 'z', -2000, 10000);
+        // gui.add(camera.rotation, 'x', -Math.PI/2, Math.PI/2);
+        // gui.add(camera.rotation, 'y', -Math.PI/2, Math.PI/2);
+        // gui.add(camera.rotation, 'z', -Math.PI/2, Math.PI/2);
 
-        //
         addData();
     }
 
@@ -179,11 +181,6 @@ var Graphic = function(){
         text.position.y = planet.position.y + centerPos;
         text.position.z = planet.position.z;
         text.needsUpdate = true;
-    }
-
-    function onDocumentMouseWheel( event ) {
-        //camera.fov += event.deltaY * 0.05;
-        camera.updateProjectionMatrix();
     }
 
     function resize() {
@@ -232,7 +229,7 @@ var Graphic = function(){
                 newData.forEach(function (t) {
                     addPoint(+t.Latitude,+t.Longitude, 0, getColor(+t['GDP']/37800/2), baseGeo);
                 })
-                //baseGeo.morphTargets.push({'name': 'target-'+0, vertices: baseGeo.vertices.clone()});
+                baseGeo.morphTargets.push({'name': 'target-'+0, vertices: baseGeo.vertices});
                 for(let i=0; i<3; i++){
                     const attr = category[i];
                     const maxInAttr = getMax(newData, attr);
@@ -242,7 +239,7 @@ var Graphic = function(){
                         const size = +d[attr]/maxInAttr/2; // linearScale
                         addPoint(+d.Latitude,+d.Longitude, size, getColor(size), subGeo);
                     })
-                    baseGeo.morphTargets.push({'name': 'target-'+i, vertices: subGeo.vertices});
+                    baseGeo.morphTargets.push({'name': 'target-'+(i+1), vertices: subGeo.vertices});
                 }
                 resolve();
             }
@@ -292,7 +289,7 @@ var Graphic = function(){
         sun.position.x = 0;
         sun.position.z = 0;
         sun.position.y = 0;
-        stats.update();
+        //stats.update();
         TWEEN.update();
         //The code below doesn't work. It cannot get right texts
         // eightPlanets.forEach(function (planet, id) {
@@ -326,15 +323,37 @@ var Graphic = function(){
         geo.merge(earthDataMesh.geometry, earthDataMesh.matrix);
     }
 
+    function onDocumentMouseMove( event ) {
+        event.preventDefault();
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+    }
+
     function getColor(x) {
         var c = new THREE.Color();
         c.setHSL( 0.6 -1.2*x, 0.9, 0.8 );
         return c;
     };
 
+    //TODO: add raycaster to baseMesh
     function render() {
         camera.lookAt(earth.position);
         renderer.render(scene, camera);
+        // raycaster.setFromCamera( mouse, camera );
+        // if(baseMesh!= undefined){
+        //     intersects = raycaster.intersectObject( baseMesh );
+        //     if ( intersects.length > 0 ) {
+        //         //console.log(intersects[0]);
+        //         if ( INTERSECTED != intersects[ 0 ].faceIndex ) {
+        //             var selectedMesh = intersects[0].object;
+        //             // INTERSECTED = Math.floor(intersects [ 0 ].faceIndex/2);
+        //             console.log( selectedMesh);
+        //         }
+        //     } else if ( INTERSECTED !== null ) {
+        //         INTERSECTED = null;
+        //         //intersects[0].object.geometry.scale(new THREE.Vector3( 1, 1, 1 ));
+        //     }
+        // }
     }
 
     this.__defineSetter__('time', function(t) {
@@ -359,8 +378,8 @@ var Graphic = function(){
     }
 
 
-    window.addEventListener('resize', resize, false);
-    document.addEventListener( 'wheel', onDocumentMouseWheel, false );
+    window.addEventListener('resize', resize);
+    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 
     this.init = init;
     this.resize = resize;

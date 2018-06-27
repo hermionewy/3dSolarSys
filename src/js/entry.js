@@ -11,12 +11,6 @@ let previousWidth = 0;
 const container = d3.select('#main-content');
 const stepSel = container.selectAll('.step');
 const graphic = new Graphic();
-// const setTime = function(graphic, t) {
-//         new TWEEN.Tween(graphic) //Create a new tween that modifies globe
-//             .to({time: t/3},500)
-//             .easing(TWEEN.Easing.Cubic.EaseOut)
-//             .start();
-// };
 
 function updateChart(index, camera) {
     console.log('updateChart' + index)
@@ -30,10 +24,18 @@ function updateChart(index, camera) {
         cameraTween(camera, 375, 8000, 2000, 150)
 	} else if(index===3){
         cameraTween(camera, 425, 18, 2000, 200)
+        setTime(graphic, 0);
     } else if(index===4){
-	    setTime(graphic, 0);
+	    setTime(graphic, 1);
     } else if(index===5){
-        setTime(graphic, 1);
+        setTime(graphic, 2);
+        cameraTween(camera, 7000, 3000, 2000, 220)
+    }else if(index===6){
+        setTime(graphic, 3);
+        cameraTween(camera, 425, 18, 2000, 200)
+    } else if(index===7){
+        setTime(graphic, 0);
+        cameraTween(camera, 10000, 10000, 2000, 1)
     }
 }
 
@@ -41,15 +43,14 @@ function updateChart(index, camera) {
 
 function setTime (graphic, t) {
     let baseMesh = graphic.getBaseMesh();
-
     new TWEEN.Tween(graphic)
-        .to({time: t/3}, 500)
+        .to({time: t/4}, 500)
         .easing(TWEEN.Easing.Quadratic.InOut)
         .onUpdate(function() {
             // console.log(this.time);
             if(baseMesh!= undefined){
                 const morphDict = baseMesh.morphTargetDictionary;
-                var l = 2; //
+                var l = 3; //3
                 var scaledt = this.time*l+1;
                 var index = Math.floor(scaledt);
                 for (let i=0;i<l;i++) {
