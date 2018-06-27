@@ -112,9 +112,10 @@ var Graphic = function(){
         //create saturn ring
         const saturnSize = 29.1;
         let saturnRingMaterial = new THREE.MeshLambertMaterial({
-            map: THREE.ImageUtils.loadTexture('./assets/model/saturn-ring.jpg'),
+            map: THREE.ImageUtils.loadTexture('./assets/model/saturnRing.png'),
             flatShading: THREE.SmoothShading,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            transparent: true
         });
         const saturnRingStart = saturnSize + 3.3;
         const saturnRingEnd = saturnSize + 60;
@@ -281,8 +282,8 @@ var Graphic = function(){
         planetRotate(venus, venusText, 1, -10);
         planetRotate(earth, earthText, 2, 5);
         planetRotate(mars, marsText, 3, 20);
-        planetRotate(saturn, saturnText, 4, 30);
-        planetRotate(jupiter, jupiterText, 5, 40);
+        planetRotate(jupiter, jupiterText, 4, 40);
+        planetRotate(saturn, saturnText, 5, 30);
         planetRotate(uranus, uranusText, 6, 10);
         planetRotate(neptune, neptuneText, 7, 10);
         camera.updateProjectionMatrix();
