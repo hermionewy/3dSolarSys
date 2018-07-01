@@ -4,7 +4,7 @@ var Graphic = function(){
         height = window.innerHeight;
     let scene = new THREE.Scene(), sceneAtmosphere= new THREE.Scene();
     let camera = new THREE.OrthographicCamera( width / - 1, width / 1, height / 1, height / - 1, 0.01, 15000 );
-
+    const self=this;
 
     // var helper = new THREE.CameraHelper( camera );
     // scene.add( helper );
@@ -87,6 +87,10 @@ var Graphic = function(){
     let earthDataGeo, earthDataMesh;
     let baseGeo = new THREE.Geometry();
     let baseMesh;
+    let textSize = 3;
+    let tooltipGeo, tooltipMesh;
+    let preSelected= {'Country':''};
+    let tooltip = document.getElementsByClassName('yw_tooltip')[0];
 
     function init() {
 
@@ -124,43 +128,50 @@ var Graphic = function(){
         saturnRing.rotation.x = 90 * Math.PI / 180;
 
         new THREE.FontLoader().load('./assets/model/helvetiker_regular.typeface.json', function(font) {
-            mercuryText = createText(mercuryText, planetData[0].name, font);
-            venusText = createText(venusText, planetData[1].name, font);
-            earthText = createText(earthText, planetData[2].name, font);
-            marsText = createText(marsText, planetData[3].name, font);
-            saturnText = createText(saturnText, planetData[4].name, font);
-            jupiterText = createText(jupiterText, planetData[5].name, font);
-            uranusText = createText(uranusText, planetData[6].name, font);
-            neptuneText = createText(neptuneText, planetData[7].name, font);
+            mercuryText = createText(mercury, mercuryText, planetData[0].name, font);
+            venusText = createText(venus, venusText, planetData[1].name, font);
+            earthText = createText(earth, earthText, planetData[2].name, font);
+            marsText = createText(mars, marsText, planetData[3].name, font);
+            saturnText = createText(saturn, saturnText, planetData[4].name, font);
+            jupiterText = createText(jupiter, jupiterText, planetData[5].name, font);
+            uranusText = createText(uranus, uranusText, planetData[6].name, font);
+            neptuneText = createText(neptune, neptuneText, planetData[7].name, font);
             allText=[mercuryText, venusText, earthText, marsText, saturnText, jupiterText, uranusText, neptuneText];
         });
 //cube
         const earthCubeSize = 10;
-        earthDataGeo = new THREE.BoxGeometry( earthCubeSize, earthCubeSize, earthCubeSize, 2 );
+        earthDataGeo = new THREE.BoxGeometry( earthCubeSize, earthCubeSize, earthCubeSize, 1 );
+        earthDataGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
         earthDataMesh = new THREE.Mesh(earthDataGeo);
 
         //helper
         // gui.add(camera.position, 'x', -2000, 10000);
         // gui.add(camera.position, 'y', -2000, 10000);
         // gui.add(camera.position, 'z', -2000, 10000);
-        // gui.add(camera.rotation, 'x', -Math.PI/2, Math.PI/2);
-        // gui.add(camera.rotation, 'y', -Math.PI/2, Math.PI/2);
-        // gui.add(camera.rotation, 'z', -Math.PI/2, Math.PI/2);
 
         addData();
+
+        //tooltip
+
+        tooltipGeo = new THREE.BoxGeometry(10, 10, 10, 1);
+        tooltipGeo.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
+        const tooltipMat =  new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        tooltipMesh = new THREE.Mesh(tooltipGeo,tooltipMat);
+        tooltipMesh.name = 'tooltip_mesh';
+        scene.add(tooltipMesh);
     }
 
 
 
-    function createText(planetText, text, font) {
+    function createText(planet, planetText, text, font) {
         const textGeometry = new THREE.TextGeometry(text, {
             font: font,
-            size:7,
+            size: textSize,
             bevelEnabled: false,
             height: 1
         });
         planetText = new THREE.Mesh(textGeometry, textMaterial);
-        scene.add(planetText);
+        planet.add(planetText);
         return planetText
     }
     function getMax(data, attr) {
@@ -169,18 +180,19 @@ var Graphic = function(){
     function getRandomArbitrary(min, max) {
         return Math.random() * (max - min) + min;
     }
-    function planetRotate(planet, text, id, centerPos) {
-        if(!centerPos) centerPos=0;
-        planetData[id].orbitAngle -= planetData[id].orbitSpeed;
+    function planetRotate(planet, text, id, yTextPos, xTextPos, textSize) {
+        if(!yTextPos) yTextPos=0;
+        var data = planetData[id];
         //let radians = planetData[id].orbitAngle * Math.PI / 180;
-        let radians = 0 * Math.PI / 180;
         planet.position.x = planetData[id].orbitRadius;
-        planet.position.z = 0
+        planet.position.z = 0;
         planet.position.y = 0;
         //planet.rotation.y += planetData[id].rotateSpeed;
-        text.position.x = planet.position.x + 15;
-        text.position.y = planet.position.y + centerPos;
-        text.position.z = planet.position.z;
+        text.position.x = planetData[id].size + xTextPos/camera.zoom;
+        text.position.y =yTextPos;
+        text.position.z = 0;
+        text.scale.set(textSize,textSize,textSize);
+        // text.scale()
         text.needsUpdate = true;
     }
 
@@ -222,14 +234,16 @@ var Graphic = function(){
             xhr.send();
         });
     }
+
     function processData(data) {
         return new Promise(
             (resolve, reject) => {
                 const newData = JSON.parse(data.target.responseText);
                 console.log('process data');
                 newData.forEach(function (t) {
-                    addPoint(+t.Latitude,+t.Longitude, 0, getColor(+t['GDP']/37800/2), baseGeo);
+                    addPoint(+t.Latitude,+t.Longitude, 0, getColor(+t['Population']), baseGeo);
                 })
+                self.data = newData;
                 baseGeo.morphTargets.push({'name': 'target-'+0, vertices: baseGeo.vertices});
                 for(let i=0; i<3; i++){
                     const attr = category[i];
@@ -278,14 +292,17 @@ var Graphic = function(){
     }
 // animate();
     function animate() {
-        planetRotate(mercury, mercuryText, 0, -25);
-        planetRotate(venus, venusText, 1, -10);
-        planetRotate(earth, earthText, 2, 5);
-        planetRotate(mars, marsText, 3, 20);
-        planetRotate(jupiter, jupiterText, 4, 40);
-        planetRotate(saturn, saturnText, 5, 30);
-        planetRotate(uranus, uranusText, 6, 10);
-        planetRotate(neptune, neptuneText, 7, 10);
+        const param = Math.sqrt(camera.zoom).toFixed(2);
+        const xTextPos = 30 / param;
+        const newTextSize = textSize/camera.zoom;
+        planetRotate(mercury, mercuryText, 0, -30/param, xTextPos, newTextSize);
+        planetRotate(venus, venusText, 1, -15/param, xTextPos, newTextSize);
+        planetRotate(earth, earthText, 2, 0/param, xTextPos, newTextSize);
+        planetRotate(mars, marsText, 3, 15/param, xTextPos, newTextSize);
+        planetRotate(jupiter, jupiterText, 4, 30/param, xTextPos, newTextSize);
+        planetRotate(saturn, saturnText, 5, 30/param, xTextPos, newTextSize);
+        planetRotate(uranus, uranusText, 6, 10/param, xTextPos, newTextSize);
+        planetRotate(neptune, neptuneText, 7, 10/param, xTextPos, newTextSize);
         camera.updateProjectionMatrix();
         sun.position.x = 0;
         sun.position.z = 0;
@@ -302,6 +319,10 @@ var Graphic = function(){
         requestAnimationFrame(animate);
     }
 
+    function shrinkFonts(){
+
+    }
+
 
     function addPoint(lat, lng, size, color, geo) {
         var phi = (90 - lat) * Math.PI / 180;
@@ -311,8 +332,8 @@ var Graphic = function(){
         earthDataMesh.position.y = r * Math.cos(phi);
         earthDataMesh.position.z = r * Math.sin(phi) * Math.sin(theta);
         earthDataMesh.scale.z = -size;
-        earthDataMesh.scale.x = 1/500;
-        earthDataMesh.scale.y = 1/500;
+        earthDataMesh.scale.x = 1/400;
+        earthDataMesh.scale.y = 1/400;
         earthDataMesh.lookAt(new THREE.Vector3( 0, 0, 0 ));
         earthDataMesh.updateMatrix();
         for (let i = 0; i < earthDataMesh.geometry.faces.length; i++) {
@@ -331,30 +352,32 @@ var Graphic = function(){
     }
 
     function getColor(x) {
-        var c = new THREE.Color();
-        c.setHSL( 0.6 -1.2*x, 0.9, 0.8 );
-        return c;
+
+        const color = x > 100000000? new THREE.Color("rgb(255, 130, 0)") : new THREE.Color("rgb(0, 255, 255)")
+        return color
     };
 
     //TODO: add raycaster to baseMesh
     function render() {
         camera.lookAt(earth.position);
         renderer.render(scene, camera);
-        // raycaster.setFromCamera( mouse, camera );
-        // if(baseMesh!= undefined){
-        //     intersects = raycaster.intersectObject( baseMesh );
-        //     if ( intersects.length > 0 ) {
-        //         //console.log(intersects[0]);
-        //         if ( INTERSECTED != intersects[ 0 ].faceIndex ) {
-        //             var selectedMesh = intersects[0].object;
-        //             // INTERSECTED = Math.floor(intersects [ 0 ].faceIndex/2);
-        //             console.log( selectedMesh);
-        //         }
-        //     } else if ( INTERSECTED !== null ) {
-        //         INTERSECTED = null;
-        //         //intersects[0].object.geometry.scale(new THREE.Vector3( 1, 1, 1 ));
-        //     }
-        // }
+        raycaster.setFromCamera( mouse, camera );
+        if(baseMesh!= undefined){
+            intersects = raycaster.intersectObject( baseMesh );
+            if ( intersects.length > 0 ) {
+                if ( INTERSECTED != intersects[ 0 ].faceIndex ) {
+                    const selectedMesh = intersects[0].object;
+                    INTERSECTED = Math.floor(intersects [ 0 ].faceIndex/12);
+                    showTooltip(INTERSECTED);
+                }
+            } else if ( INTERSECTED !== null ) {
+                INTERSECTED = null;
+                tooltip.classList.remove("active");
+                // intersects[0].object.geometry.scale(new THREE.Vector3( 1, 1, 1 ));
+            }
+        }
+
+
     }
 
     this.__defineSetter__('time', function(t) {
@@ -367,6 +390,32 @@ var Graphic = function(){
     this.__defineGetter__('time', function() {
         return this._time || 0;
     });
+
+
+    function showTooltip(selected) {
+        const selectedData = self.data[selected];
+        if(selectedData != undefined &&selectedData['Country'] != preSelected['Country']){
+            console.log(selectedData);
+            tooltip.classList.add("active");
+            console.log(selectedData['Country']);
+            tooltip.innerHTML =`<p><strong>${selectedData['Country']}</strong></br>
+            Population: ${addCommas(selectedData['Population'])}</br>
+            GDP: ${addCommas(selectedData['GDP'])} $ per capita</br>
+            Literacy rate: ${selectedData['Literacy']}% </p>`;
+        }
+    }
+
+    function addCommas(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
 
     function getBaseMesh() {
         if(baseMesh!= undefined){

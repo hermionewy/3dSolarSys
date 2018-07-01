@@ -1,4 +1,9 @@
 /* CUSTOM STORY STYLE */
+html
+  background-color black
+
+strong
+  color orangered
 
 #content
   background-color black
@@ -11,6 +16,7 @@ figure.sticky
   margin 0
   top 0vh
   left 0
+  pointer-events auto
 
   & canvas
     position absolute
@@ -27,6 +33,7 @@ article
   max-width 30rem
   margin 0 auto
   position relative
+  pointer-events none
 
   .step
     min-height 67vh
@@ -44,13 +51,34 @@ article
       background-color rgba(0, 0, 0, 0.5)
       transition background-color 250ms ease-in-out
       color gray
-      set-type-size(medium)
+      //set-type-size(medium)
+      set-type-size('medium', lh = true)
 
 .yw-footer
   min-height 50px
   background-color black
   & p
-    padding 20px 0
+    padding 1rem 1rem
+    set-type-size('x-small', lh =true)
 
 a.yw-link
   color white
+
+.yw_tooltip
+  width 160px
+  min-height 20px
+  background-color rgba(0,0,0, 0.5)
+  position absolute
+  left -50rem
+  top 2rem
+  padding 8px
+  transition 0.2s ease-in-out
+  z-index 1000
+  &.active
+    transform: translate(52rem, 0)
+
+.yw_tooltip p
+  font-family Helvetica
+  color #efefef
+  margin 0px
+  font-size 10px
