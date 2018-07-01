@@ -2,15 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="742c89cc-31ae-4e2a-960e-d6003079ac66" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assets/model/milky-way.jpg" afterPath="$PROJECT_DIR$/src/assets/model/milky-way.jpg" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assets/model/AllCountries.csv" afterPath="$PROJECT_DIR$/src/assets/model/AllCountries.csv" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/assets/model/allCountries.json" afterPath="$PROJECT_DIR$/src/assets/model/allCountries.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/css/story/story.styl" afterPath="$PROJECT_DIR$/src/css/story/story.styl" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/html/index.hbs" afterPath="$PROJECT_DIR$/src/html/index.hbs" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/html/partials/story/yw-main.hbs" afterPath="$PROJECT_DIR$/src/html/partials/story/yw-main.hbs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/js/graphic.js" afterPath="$PROJECT_DIR$/src/js/graphic.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/template-data/meta.json" afterPath="$PROJECT_DIR$/template-data/meta.json" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -44,17 +37,17 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="yw-main.hbs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="yw-main.hbs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/html/partials/story/yw-main.hbs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-7">
-              <caret line="36" column="121" lean-forward="false" selection-start-line="36" selection-start-column="121" selection-end-line="36" selection-end-column="121" />
+            <state relative-caret-position="233">
+              <caret line="53" column="42" lean-forward="false" selection-start-line="53" selection-start-column="42" selection-end-line="53" selection-end-column="42" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="story.styl" pinned="false" current-in-tab="true">
+      <file leaf-file-name="story.styl" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/css/story/story.styl">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="75">
@@ -90,7 +83,7 @@
         <entry file="file://$PROJECT_DIR$/src/js/graphic.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1488">
-              <caret line="404" column="9" lean-forward="true" selection-start-line="404" selection-start-column="9" selection-end-line="404" selection-end-column="9" />
+              <caret line="404" column="9" lean-forward="false" selection-start-line="404" selection-start-column="9" selection-end-line="404" selection-end-column="9" />
               <folding>
                 <marker date="1530483459000" expanded="true" signature="17515:17763" ph="..." />
                 <marker date="1530483459000" expanded="true" signature="17515:18573" ph="..." />
@@ -138,9 +131,9 @@
       <find>mouse</find>
       <find>elements</find>
       <find>render</find>
+      <find>getColor</find>
       <find>is</find>
       <find>population</find>
-      <find>getColor</find>
     </findStrings>
     <replaceStrings>
       <replace>,</replace>
@@ -175,8 +168,8 @@
         <option value="$PROJECT_DIR$/src/assets/model/allCountries.json" />
         <option value="$PROJECT_DIR$/template-data/meta.json" />
         <option value="$PROJECT_DIR$/src/js/graphic.js" />
-        <option value="$PROJECT_DIR$/src/html/partials/story/yw-main.hbs" />
         <option value="$PROJECT_DIR$/src/css/story/story.styl" />
+        <option value="$PROJECT_DIR$/src/html/partials/story/yw-main.hbs" />
       </list>
     </option>
   </component>
@@ -372,12 +365,12 @@
       <workItem from="1530203125306" duration="5240000" />
       <workItem from="1530221701207" duration="2804000" />
       <workItem from="1530225378161" duration="769000" />
-      <workItem from="1530394147519" duration="15259000" />
+      <workItem from="1530394147519" duration="15699000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="161244000" />
+    <option name="totallyTimeSpent" value="161684000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="720" extended-state="0" />
@@ -763,6 +756,25 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/css/story/story.styl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/js/graphic.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1488">
+          <caret line="404" column="9" lean-forward="false" selection-start-line="404" selection-start-column="9" selection-end-line="404" selection-end-column="9" />
+          <folding>
+            <marker date="1530483459000" expanded="true" signature="17515:17763" ph="..." />
+            <marker date="1530483459000" expanded="true" signature="17515:18573" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/assets/model/allCountries.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-9724">
@@ -771,29 +783,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/js/graphic.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1488">
-          <caret line="404" column="9" lean-forward="true" selection-start-line="404" selection-start-column="9" selection-end-line="404" selection-end-column="9" />
-          <folding>
-            <marker date="1530483459000" expanded="true" signature="17515:17763" ph="..." />
-            <marker date="1530483459000" expanded="true" signature="17515:18573" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/html/partials/story/yw-main.hbs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-7">
-          <caret line="36" column="121" lean-forward="false" selection-start-line="36" selection-start-column="121" selection-end-line="36" selection-end-column="121" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/css/story/story.styl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="17" lean-forward="false" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+        <state relative-caret-position="233">
+          <caret line="53" column="42" lean-forward="false" selection-start-line="53" selection-start-column="42" selection-end-line="53" selection-end-column="42" />
           <folding />
         </state>
       </provider>
