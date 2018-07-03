@@ -81,7 +81,7 @@ var Graphic = function(){
     const sun = createStars(planetData[8].size, planetData[8].img, 50, "Sun");
 //sun glow
     createGlow(sun, new THREE.SphereGeometry(sunSize, 50, 50), Shaders['atmosphere'], 1.02);
-// createGlow(earth, new THREE.SphereGeometry(3, 40, 40), Shaders['earth'], 1.03); //earthGlow
+    //createGlow(earth, new THREE.SphereGeometry(3, 40, 40), Shaders['earth'], 1.03); //earthGlow
 
     let allText = [];
     let earthDataGeo, earthDataMesh;
